@@ -73,4 +73,16 @@ export const themes = [
     name: 'Forest',
     palette: ['#171212', '#151010', '#D6CBCB', '#4AB855'],
   },
+  {
+    name: 'Midnight Alt',
+    palette: ['#161618', '#D31526', '#F4F1ED', '#7E48B5'],
+  },
+  {
+    name: 'Earthy Grunge',
+    palette: ['#F4F1ED', '#4B8E88', '#2B2524', '#824538'],
+  },
+  {
+    name: 'High Contrast Minimal',
+    palette: ['#FFFFFF', '#161618', '#161618', '#4B8E88'],
+  },
 ];
