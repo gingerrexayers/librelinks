@@ -1,5 +1,6 @@
 import { getApexDomain, removeHashFromHexColor } from '@/utils/helpers';
 import {
+  FaBandcamp,
   FaDiscord,
   FaFacebook,
   FaGithub,
@@ -17,6 +18,7 @@ import {
 import { GlobeIcon, TwitterIcon } from 'lucide-react';
 
 const PLATFORM_ALIASES = {
+  bandcamp: 'bandcamp',
   behance: 'behance',
   discord: 'discord',
   discordapp: 'discord',
@@ -41,6 +43,7 @@ const PLATFORM_ALIASES = {
 };
 
 const PLATFORM_ICONS = {
+  bandcamp: FaBandcamp,
   discord: FaDiscord,
   facebook: FaFacebook,
   github: FaGithub,

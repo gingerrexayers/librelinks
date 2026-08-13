@@ -2,7 +2,6 @@
 import LinkCard from '@/components/core/user-profile/links-card';
 import * as Avatar from '@radix-ui/react-avatar';
 import * as Dialog from '@radix-ui/react-dialog';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -23,8 +22,6 @@ const LOCAL_LOCATION_FALLBACK = {
   countryCode: 'GH',
   city: 'Accra',
 };
-
-const DEFAULT_MADE_WITH_URL = 'https://urdadx.com/';
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -222,7 +219,6 @@ const ProfilePage = () => {
     : fetchedUser;
 
   const buttonStyle = displayUser?.buttonStyle;
-  const madeWithUrl = getCurrentUrl();
   const pageTitle = `@${displayUser?.handle || normalizedHandle} | Librelinks`;
   const pageDescription =
     displayUser?.bio ||
@@ -408,25 +404,6 @@ const ProfilePage = () => {
           )}
         </div>
         <div className="my-10 lg:my-24" />
-        {userLinks?.length > 0 ? (
-          <footer className="relative left-1/2 bottom-0 transform -translate-x-1/2 w-[200px]">
-            <p
-              style={{ color: theme.accent }}
-              className="text-sm text-semibold text-center w lg:text-lg"
-            >
-              Made with{' '}
-              <Link
-                className="font-semibold"
-                target="_blank"
-                href={madeWithUrl}
-              >
-                Librelinks
-              </Link>
-            </p>
-          </footer>
-        ) : (
-          ''
-        )}
       </section>
     </>
   );
@@ -463,15 +440,6 @@ function getBrowserTrackingPayload() {
     browserLocation,
     browserReferrer: document.referrer,
   };
-}
-
-function getCurrentUrl() {
-  if (typeof window === 'undefined') {
-    return DEFAULT_MADE_WITH_URL;
-  }
-
-  const { protocol, host } = window.location;
-  return `${protocol}//${host}`;
 }
 
 export default ProfilePage;

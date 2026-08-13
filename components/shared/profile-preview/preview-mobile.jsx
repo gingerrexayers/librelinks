@@ -2,7 +2,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import * as Avatar from '@radix-ui/react-avatar';
 import LinkCard from '@/components/core/user-profile/links-card';
-import Link from 'next/link';
 import Loader from '@/components/utils/loading-spinner';
 import NotFound from '@/components/utils/not-found';
 import useLinks from '@/hooks/useLinks';
@@ -128,23 +127,6 @@ const PreviewMobile = ({ close }) => {
           )}
         </div>
         <div className="mt-10" />
-        {nonSocialLinks?.length > 0 && (
-          <footer className="relative left-1/2 bottom-0 transform -translate-x-1/2 w-[200px]">
-            <p
-              style={{ color: theme.accent }}
-              className="text-sm text-semibold text-center lg:text-lg"
-            >
-              Made with{' '}
-              <Link
-                className="font-semibold"
-                target="_blank"
-                href="https://twitter.com/NerdyProgramme2"
-              >
-                Librelinks
-              </Link>
-            </p>
-          </footer>
-        )}
         <div className="rounded-full bottom-[1rem] absolute left-1/2 transform -translate-x-1/2 lg:hidden">
           <button
             onClick={close}
