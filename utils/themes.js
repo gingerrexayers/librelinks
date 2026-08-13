@@ -75,7 +75,7 @@ export const themes = [
   },
   {
     name: 'Midnight Alt',
-    palette: ['#161618', '#D31526', '#F4F1ED', '#7E48B5'],
+    palette: ['#161618', '#D31526', '#F4F1ED', '#111827'],
   },
   {
     name: 'Earthy Grunge',

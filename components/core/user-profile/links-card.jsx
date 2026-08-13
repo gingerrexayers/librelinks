@@ -20,12 +20,11 @@ const AngelWing = ({ mirrored }) => (
 
 const LinkCard = (props) => {
   const isTransparent = props.buttonStyle.includes('bg-transparent');
-  const hasShadowProp = props.buttonStyle.includes('shadow');
 
   const style = {
     background: isTransparent ? 'transparent' : props.theme.secondary,
     border: `1.5px solid ${props.theme.neutral}`,
-    boxShadow: hasShadowProp ? `5px 5px 0 0 ${props.theme.neutral}` : '',
+    boxShadow: `5px 5px 0 0 ${props.theme.neutral}`,
   };
 
   return (

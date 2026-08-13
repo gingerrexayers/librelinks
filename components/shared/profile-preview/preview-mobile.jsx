@@ -60,10 +60,13 @@ const PreviewMobile = ({ close }) => {
     <>
       <section
         style={{ background: theme.primary }}
-        className="h-[100vh] w-[100vw] no-scrollbar overflow-auto"
+        className="h-[100vh] w-full max-w-full no-scrollbar overflow-x-hidden overflow-y-auto"
       >
         {currentUser?.image && (
-          <div className="flex w-full justify-center overflow-hidden border-b-2 border-blue-300">
+          <div
+            className="flex w-full justify-center overflow-hidden border-b-2"
+            style={{ borderColor: theme.neutral }}
+          >
             <img
               src={currentUser?.image}
               referrerPolicy="no-referrer"
@@ -72,7 +75,7 @@ const PreviewMobile = ({ close }) => {
             />
           </div>
         )}
-        <div className="flex items-center w-full mt-10 flex-col mx-auto max-w-3xl justify-center px-8 lg:mt-16">
+        <div className="flex items-center w-full mt-10 flex-col mx-auto max-w-3xl justify-center px-14 sm:px-16 lg:px-8 lg:mt-16">
           <p
             style={{ color: theme.accent }}
             className="font-coert text-white text-center text-2xl mt-4 mb-2 lg:mt-4"
@@ -87,7 +90,7 @@ const PreviewMobile = ({ close }) => {
               {currentUser?.bio}
             </p>
           )}
-          <div className="min-w-max flex flex-wrap gap-2 mb-8 lg:w-fit lg:gap-4">
+          <div className="flex flex-wrap justify-center gap-2 mb-8 lg:w-fit lg:gap-4">
             {socialLinks?.map(({ title, url }) => (
               <SocialCards
                 key={title}
