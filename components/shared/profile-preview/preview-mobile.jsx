@@ -75,7 +75,7 @@ const PreviewMobile = ({ close }) => {
         <div className="flex items-center w-full mt-10 flex-col mx-auto max-w-3xl justify-center px-8 lg:mt-16">
           <p
             style={{ color: theme.accent }}
-            className="font-coert text-white text-center text-sm mt-4 mb-2 lg:text-xl lg:mt-4"
+            className="font-coert text-white text-center text-2xl mt-4 mb-2 lg:mt-4"
           >
             {currentUser?.name}
           </p>
