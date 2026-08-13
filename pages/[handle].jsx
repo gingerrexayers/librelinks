@@ -26,18 +26,53 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-async function doesHandleExist(handle) {
+const PROFILE_META_SELECT = {
+  id: true,
+  name: true,
+  handle: true,
+  themePalette: true,
+};
+
+function isHexColor(value) {
+  return typeof value === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value.trim());
+}
+
+function getColorScheme(hex) {
+  if (!isHexColor(hex)) {
+    return 'light';
+  }
+
+  const normalized = hex.replace('#', '').trim();
+  const full =
+    normalized.length === 3
+      ? normalized
+          .split('')
+          .map((char) => char + char)
+          .join('')
+      : normalized;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  return luminance < 0.5 ? 'dark' : 'light';
+}
+
+function getThemePrimary(themePalette) {
+  const primary = themePalette?.palette?.[0];
+  return isHexColor(primary) ? primary.trim() : '';
+}
+
+async function getProfilePageMeta(handle) {
   const existingUser = await db.user.findUnique({
     where: {
       handle,
     },
-    select: {
-      id: true,
-    },
+    select: PROFILE_META_SELECT,
   });
 
   if (existingUser?.id) {
-    return true;
+    return existingUser;
   }
 
   const matchingUsers = await db.user.aggregateRaw({
@@ -61,10 +96,28 @@ async function doesHandleExist(handle) {
     ],
   });
 
-  return typeof matchingUsers[0]?._id === 'string' || !!matchingUsers[0]?._id?.$oid;
+  const matchedUserId =
+    typeof matchingUsers[0]?._id === 'string'
+      ? matchingUsers[0]._id
+      : matchingUsers[0]?._id?.$oid;
+
+  if (typeof matchedUserId !== 'string') {
+    return null;
+  }
+
+  return db.user.findUnique({
+    where: {
+      id: matchedUserId,
+    },
+    select: PROFILE_META_SELECT,
+  });
 }
 
-const ProfilePage = ({ initialHandle } = {}) => {
+const ProfilePage = ({
+  initialHandle,
+  initialName = '',
+  initialThemePrimary = '',
+} = {}) => {
   const { asPath, query } = useRouter();
   const handle = initialHandle ?? query.handle;
   const normalizedHandle =
@@ -196,14 +249,60 @@ const ProfilePage = ({ initialHandle } = {}) => {
     };
   }, [sourceBio]);
 
+  const pageBackground =
+    getThemePrimary(fetchedUser?.themePalette) || initialThemePrimary;
+  const pageTitle =
+    (previewUserOverride?.name ?? fetchedUser?.name ?? initialName)?.trim() ||
+    fetchedUser?.handle ||
+    normalizedHandle ||
+    '';
+
+  useEffect(() => {
+    if (!pageBackground) {
+      return;
+    }
+
+    const root = document.documentElement;
+    const { body } = document;
+    const previousHtmlBackground = root.style.backgroundColor;
+    const previousBodyBackground = body.style.backgroundColor;
+    const previousColorScheme = root.style.colorScheme;
+
+    root.style.backgroundColor = pageBackground;
+    body.style.backgroundColor = pageBackground;
+    root.style.colorScheme = getColorScheme(pageBackground);
+
+    return () => {
+      root.style.backgroundColor = previousHtmlBackground;
+      body.style.backgroundColor = previousBodyBackground;
+      root.style.colorScheme = previousColorScheme;
+    };
+  }, [pageBackground]);
+
   if (isUserLoading) {
     return (
-      <Loader
-        message={'Loading...'}
-        bgColor="black"
-        textColor="black"
-        fullPage
-      />
+      <>
+        <ProfileDocumentHead
+          pageTitle={pageTitle}
+          pageDescription={sourceBio}
+          canonicalUrl={
+            isRootProfile ? siteConfig.url : `${siteConfig.url}/${normalizedHandle}`
+          }
+          image={siteConfig.ogImage}
+          themePrimary={pageBackground}
+        />
+        <div
+          className="min-h-screen min-h-[100dvh] w-full"
+          style={pageBackground ? { background: pageBackground } : undefined}
+        >
+          <Loader
+            message={'Loading...'}
+            bgColor="black"
+            textColor="black"
+            fullPage
+          />
+        </div>
+      </>
     );
   }
 
@@ -219,15 +318,14 @@ const ProfilePage = ({ initialHandle } = {}) => {
     : fetchedUser;
 
   const buttonStyle = displayUser?.buttonStyle;
-  const pageTitle = `@${displayUser?.handle || normalizedHandle} | Librelinks`;
   const pageDescription =
     displayUser?.bio ||
-    `${displayUser?.name || `@${displayUser?.handle || normalizedHandle}`}'s Librelinks page.`;
+    `${displayUser?.name || displayUser?.handle || normalizedHandle}'s page.`;
   const canonicalUrl = isRootProfile
     ? siteConfig.url
     : `${siteConfig.url}/${displayUser?.handle || normalizedHandle}`;
   const theme = {
-    primary: displayUser?.themePalette?.palette?.[0],
+    primary: pageBackground || displayUser?.themePalette?.palette?.[0],
     secondary: displayUser?.themePalette?.palette?.[1],
     accent: displayUser?.themePalette?.palette?.[2],
     neutral: displayUser?.themePalette?.palette?.[3],
@@ -235,37 +333,16 @@ const ProfilePage = ({ initialHandle } = {}) => {
 
   return (
     <>
-      <Head>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDescription} />
-        <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:type" content="profile" />
-        <meta property="og:site_name" content="Librelinks" />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta
-          property="og:image"
-          content={displayUser?.image || siteConfig.ogImage}
-        />
-        <meta
-          property="og:image:secure_url"
-          content={displayUser?.image || siteConfig.ogImage}
-        />
-        <meta property="og:image:alt" content={pageTitle} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content={siteConfig.twitterHandle} />
-        <meta name="twitter:creator" content={siteConfig.twitterHandle} />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={pageDescription} />
-        <meta
-          name="twitter:image"
-          content={displayUser?.image || siteConfig.ogImage}
-        />
-      </Head>
+      <ProfileDocumentHead
+        pageTitle={pageTitle}
+        pageDescription={pageDescription}
+        canonicalUrl={canonicalUrl}
+        image={displayUser?.image || siteConfig.ogImage}
+        themePrimary={theme.primary}
+      />
       <section
         style={{ background: theme.primary }}
-        className="h-[100vh] w-full max-w-full no-scrollbar overflow-x-hidden overflow-y-auto"
+        className="min-h-screen min-h-[100dvh] w-full max-w-full"
       >
         {displayUser?.image && (
           <div
@@ -440,6 +517,42 @@ function getBrowserTrackingPayload() {
   };
 }
 
+function ProfileDocumentHead({
+  pageTitle,
+  pageDescription,
+  canonicalUrl,
+  image,
+  themePrimary,
+}) {
+  const colorScheme = getColorScheme(themePrimary);
+
+  return (
+    <Head>
+      <title>{pageTitle}</title>
+      <meta name="description" content={pageDescription} />
+      {themePrimary ? <meta name="theme-color" content={themePrimary} /> : null}
+      <meta name="color-scheme" content={colorScheme} />
+      <link rel="canonical" href={canonicalUrl} />
+      <meta property="og:type" content="profile" />
+      <meta property="og:title" content={pageTitle} />
+      <meta property="og:description" content={pageDescription} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:image" content={image} />
+      <meta property="og:image:secure_url" content={image} />
+      <meta property="og:image:alt" content={pageTitle} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content={siteConfig.twitterHandle} />
+      <meta name="twitter:creator" content={siteConfig.twitterHandle} />
+      <meta name="twitter:title" content={pageTitle} />
+      <meta name="twitter:description" content={pageDescription} />
+      <meta name="twitter:image" content={image} />
+      {themePrimary ? (
+        <style>{`html,body,#__next{background:${themePrimary};min-height:100%;color-scheme:${colorScheme}}`}</style>
+      ) : null}
+    </Head>
+  );
+}
+
 export default ProfilePage;
 
 export async function getServerSideProps(context) {
@@ -468,11 +581,16 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const handleExists = await doesHandleExist(canonicalHandle);
+  const profileMeta = await getProfilePageMeta(canonicalHandle);
 
-  if (!handleExists) {
+  if (!profileMeta?.id) {
     return { notFound: true };
   }
 
-  return { props: {} };
+  return {
+    props: {
+      initialName: profileMeta.name || '',
+      initialThemePrimary: getThemePrimary(profileMeta.themePalette),
+    },
+  };
 }

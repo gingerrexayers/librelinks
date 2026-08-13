@@ -15,6 +15,6 @@ export async function getServerSideProps(context) {
   });
 }
 
-export default function Home() {
-  return <ProfilePage initialHandle={siteConfig.rootHandle} />;
+export default function Home(props) {
+  return <ProfilePage {...props} initialHandle={siteConfig.rootHandle} />;
 }
