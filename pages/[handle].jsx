@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import LinkCard from '@/components/core/user-profile/links-card';
-import * as Avatar from '@radix-ui/react-avatar';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
@@ -276,23 +275,16 @@ const ProfilePage = () => {
               />
             </div>
           )}
-          <Avatar.Root
-            className="inline-flex h-[70px] w-[70px] border-2 border-blue-300
-						items-center justify-center overflow-hidden rounded-full align-middle lg:w-[96px] lg:h-[96px]"
-          >
-            <Avatar.Image
-              className="h-full w-full rounded-[inherit] object-cover"
-              src={displayUser?.image}
-              referrerPolicy="no-referrer"
-              alt="avatar"
-            />
-            <Avatar.Fallback
-              className="leading-1 flex h-full w-full items-center justify-center bg-white text-[15px] font-medium"
-              delayMs={100}
-            >
-              @
-            </Avatar.Fallback>
-          </Avatar.Root>
+          {displayUser?.image && (
+            <div className="w-full overflow-hidden rounded-2xl border-2 border-blue-300 aspect-[637/432]">
+              <img
+                src={displayUser?.image}
+                referrerPolicy="no-referrer"
+                alt="header"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          )}
           <p
             style={{ color: theme.accent }}
             className="font-bold text-white text-center text-sm mt-4 mb-2 lg:text-xl lg:mt-4"

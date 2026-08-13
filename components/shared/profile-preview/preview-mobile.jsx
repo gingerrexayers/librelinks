@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState, useMemo } from 'react';
-import * as Avatar from '@radix-ui/react-avatar';
 import LinkCard from '@/components/core/user-profile/links-card';
 import Loader from '@/components/utils/loading-spinner';
 import NotFound from '@/components/utils/not-found';
@@ -64,23 +63,16 @@ const PreviewMobile = ({ close }) => {
         className="h-[100vh] w-[100vw] no-scrollbar overflow-auto"
       >
         <div className="flex items-center w-full mt-10 flex-col mx-auto max-w-3xl justify-center px-8 lg:mt-16">
-          <Avatar.Root
-            className="inline-flex h-[70px] w-[70px] border-2 border-blue-300
-						items-center justify-center overflow-hidden rounded-full align-middle lg:w-[96px] lg:h-[96px]"
-          >
-            <Avatar.Image
-              className="h-full w-full rounded-[inherit] object-cover"
-              src={currentUser && currentUser?.image}
-              referrerPolicy="no-referrer"
-              alt="avatar"
-            />
-            <Avatar.Fallback
-              className="leading-1 flex h-full w-full items-center justify-center bg-slate-900 text-xl text-white font-medium"
-              delayMs={100}
-            >
-              @
-            </Avatar.Fallback>
-          </Avatar.Root>
+          {currentUser?.image && (
+            <div className="w-full overflow-hidden rounded-2xl border-2 border-blue-300 aspect-[637/432]">
+              <img
+                src={currentUser?.image}
+                referrerPolicy="no-referrer"
+                alt="header"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          )}
           <p
             style={{ color: theme.accent }}
             className="font-bold text-white text-center text-sm mt-4 mb-2 lg:text-xl lg:mt-4"
