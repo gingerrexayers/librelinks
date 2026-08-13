@@ -1,6 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 /* @import url("https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap"); */
 
+@font-face {
+  font-family: 'Coertschriftromaans';
+  src: url('/fonts/Coertschriftromaans-vXvy.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -115,26 +123,25 @@
   background-color: #f2f4f7;
 }
 
-/* Angel wing hover effect on link cards */
+/* Angel wing effect on link cards */
 .angel-wing {
   position: absolute;
   top: 50%;
   width: 56px;
-  opacity: 0;
+  opacity: 1;
   pointer-events: none;
-  transition: opacity 0.25s ease-in;
 }
 
 .angel-wing-left {
   right: calc(100% - 10px);
   transform-origin: 100% 50%;
-  transform: translateY(-50%) rotate(-20deg) scale(0.3);
+  animation: angel-wing-flap-left 1.8s ease-in-out infinite;
 }
 
 .angel-wing-right {
   left: calc(100% - 10px);
   transform-origin: 0% 50%;
-  transform: translateY(-50%) rotate(20deg) scale(0.3);
+  animation: angel-wing-flap-right 1.8s ease-in-out infinite;
 }
 
 .angel-halo {
@@ -154,10 +161,9 @@
   box-shadow:
     0 0 10px 3px rgba(255, 213, 74, 0.65),
     inset 0 0 5px rgba(255, 213, 74, 0.5);
-  opacity: 0;
+  opacity: 1;
   pointer-events: none;
-  transform: translateX(-50%) translateY(0) scale(1);
-  transition: opacity 0.25s ease-in;
+  animation: angel-halo-float 2.2s ease-in-out infinite;
 }
 
 @media (min-width: 1024px) {
@@ -169,30 +175,6 @@
     bottom: calc(100% + 8px);
     height: 16px;
     border-width: 3px;
-  }
-}
-
-@media (hover: hover) {
-  .angel-link-card:hover .angel-wing,
-  .angel-link-card:focus-visible .angel-wing,
-  .angel-link-card:hover .angel-halo,
-  .angel-link-card:focus-visible .angel-halo {
-    opacity: 1;
-  }
-
-  .angel-link-card:hover .angel-halo,
-  .angel-link-card:focus-visible .angel-halo {
-    animation: angel-halo-float 2.2s ease-in-out infinite;
-  }
-
-  .angel-link-card:hover .angel-wing-left,
-  .angel-link-card:focus-visible .angel-wing-left {
-    animation: angel-wing-flap-left 1.8s ease-in-out infinite;
-  }
-
-  .angel-link-card:hover .angel-wing-right,
-  .angel-link-card:focus-visible .angel-wing-right {
-    animation: angel-wing-flap-right 1.8s ease-in-out infinite;
   }
 }
 
@@ -227,20 +209,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .angel-link-card:hover .angel-wing-left,
-  .angel-link-card:focus-visible .angel-wing-left {
+  .angel-wing-left {
     animation: none;
     transform: translateY(-50%) rotate(6deg) scale(1);
   }
 
-  .angel-link-card:hover .angel-wing-right,
-  .angel-link-card:focus-visible .angel-wing-right {
+  .angel-wing-right {
     animation: none;
     transform: translateY(-50%) rotate(-6deg) scale(1);
   }
 
-  .angel-link-card:hover .angel-halo,
-  .angel-link-card:focus-visible .angel-halo {
+  .angel-halo {
     animation: none;
     transform: translateX(-50%) translateY(0) scale(1);
   }

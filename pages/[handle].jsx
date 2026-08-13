@@ -290,7 +290,7 @@ const ProfilePage = ({ initialHandle } = {}) => {
           )}
           <p
             style={{ color: theme.accent }}
-            className="font-bold text-white text-center text-sm mt-4 mb-2 lg:text-xl lg:mt-4"
+            className="font-coert text-white text-center text-sm mt-4 mb-2 lg:text-xl lg:mt-4"
           >
             {displayUser?.name}
           </p>

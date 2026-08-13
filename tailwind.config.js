@@ -10,6 +10,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['var(--font-inter)'],
+        coert: ['Coertschriftromaans', 'cursive'],
       },
     },
   },
