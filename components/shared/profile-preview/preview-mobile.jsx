@@ -63,12 +63,12 @@ const PreviewMobile = ({ close }) => {
         className="h-[100vh] w-[100vw] no-scrollbar overflow-auto"
       >
         {currentUser?.image && (
-          <div className="w-full overflow-hidden border-b-2 border-blue-300 aspect-[637/432]">
+          <div className="flex w-full justify-center overflow-hidden border-b-2 border-blue-300">
             <img
               src={currentUser?.image}
               referrerPolicy="no-referrer"
               alt="header"
-              className="h-full w-full object-cover"
+              className="block h-auto w-auto max-w-full"
             />
           </div>
         )}
