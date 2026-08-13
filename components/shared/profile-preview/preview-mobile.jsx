@@ -62,17 +62,17 @@ const PreviewMobile = ({ close }) => {
         style={{ background: theme.primary }}
         className="h-[100vh] w-[100vw] no-scrollbar overflow-auto"
       >
+        {currentUser?.image && (
+          <div className="w-full overflow-hidden border-b-2 border-blue-300 aspect-[637/432]">
+            <img
+              src={currentUser?.image}
+              referrerPolicy="no-referrer"
+              alt="header"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        )}
         <div className="flex items-center w-full mt-10 flex-col mx-auto max-w-3xl justify-center px-8 lg:mt-16">
-          {currentUser?.image && (
-            <div className="w-full overflow-hidden rounded-2xl border-2 border-blue-300 aspect-[637/432]">
-              <img
-                src={currentUser?.image}
-                referrerPolicy="no-referrer"
-                alt="header"
-                className="h-full w-full object-cover"
-              />
-            </div>
-          )}
           <p
             style={{ color: theme.accent }}
             className="font-bold text-white text-center text-sm mt-4 mb-2 lg:text-xl lg:mt-4"

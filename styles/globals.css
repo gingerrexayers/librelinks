@@ -114,3 +114,134 @@
   border-radius: 10px;
   background-color: #f2f4f7;
 }
+
+/* Angel wing hover effect on link cards */
+.angel-wing {
+  position: absolute;
+  top: 50%;
+  width: 56px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-in;
+}
+
+.angel-wing-left {
+  right: calc(100% - 10px);
+  transform-origin: 100% 50%;
+  transform: translateY(-50%) rotate(-20deg) scale(0.3);
+}
+
+.angel-wing-right {
+  left: calc(100% - 10px);
+  transform-origin: 0% 50%;
+  transform: translateY(-50%) rotate(20deg) scale(0.3);
+}
+
+.angel-halo {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  z-index: 2;
+  width: 100%;
+  height: 12px;
+  border-radius: 50%;
+  border: 2.5px solid #ffd54a;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 236, 160, 0.45) 0%,
+    rgba(255, 236, 160, 0) 70%
+  );
+  box-shadow:
+    0 0 10px 3px rgba(255, 213, 74, 0.65),
+    inset 0 0 5px rgba(255, 213, 74, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(0) scale(1);
+  transition: opacity 0.25s ease-in;
+}
+
+@media (min-width: 1024px) {
+  .angel-wing {
+    width: 92px;
+  }
+
+  .angel-halo {
+    bottom: calc(100% + 8px);
+    height: 16px;
+    border-width: 3px;
+  }
+}
+
+@media (hover: hover) {
+  .angel-link-card:hover .angel-wing,
+  .angel-link-card:focus-visible .angel-wing,
+  .angel-link-card:hover .angel-halo,
+  .angel-link-card:focus-visible .angel-halo {
+    opacity: 1;
+  }
+
+  .angel-link-card:hover .angel-halo,
+  .angel-link-card:focus-visible .angel-halo {
+    animation: angel-halo-float 2.2s ease-in-out infinite;
+  }
+
+  .angel-link-card:hover .angel-wing-left,
+  .angel-link-card:focus-visible .angel-wing-left {
+    animation: angel-wing-flap-left 1.8s ease-in-out infinite;
+  }
+
+  .angel-link-card:hover .angel-wing-right,
+  .angel-link-card:focus-visible .angel-wing-right {
+    animation: angel-wing-flap-right 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes angel-wing-flap-left {
+  0%,
+  100% {
+    transform: translateY(-50%) rotate(6deg) scale(1);
+  }
+  50% {
+    transform: translateY(-58%) rotate(17deg) scale(1.04);
+  }
+}
+
+@keyframes angel-wing-flap-right {
+  0%,
+  100% {
+    transform: translateY(-50%) rotate(-6deg) scale(1);
+  }
+  50% {
+    transform: translateY(-58%) rotate(-17deg) scale(1.04);
+  }
+}
+
+@keyframes angel-halo-float {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-5px) scale(1.01);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .angel-link-card:hover .angel-wing-left,
+  .angel-link-card:focus-visible .angel-wing-left {
+    animation: none;
+    transform: translateY(-50%) rotate(6deg) scale(1);
+  }
+
+  .angel-link-card:hover .angel-wing-right,
+  .angel-link-card:focus-visible .angel-wing-right {
+    animation: none;
+    transform: translateY(-50%) rotate(-6deg) scale(1);
+  }
+
+  .angel-link-card:hover .angel-halo,
+  .angel-link-card:focus-visible .angel-halo {
+    animation: none;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}

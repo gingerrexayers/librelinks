@@ -1,6 +1,7 @@
 export const siteConfig = {
   showName: true,
   name: 'Librelinks.',
+  rootHandle: 'nothinglessthanangels',
   url: 'https://links.urdadx.com',
   ogImage: 'https://links.urdadx.com/og.png',
   twitterHandle: '@urdadx',

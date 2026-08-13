@@ -64,11 +64,12 @@ async function doesHandleExist(handle) {
   return typeof matchingUsers[0]?._id === 'string' || !!matchingUsers[0]?._id?.$oid;
 }
 
-const ProfilePage = () => {
-  const { query } = useRouter();
-  const { handle } = query;
+const ProfilePage = ({ initialHandle } = {}) => {
+  const { asPath, query } = useRouter();
+  const handle = initialHandle ?? query.handle;
   const normalizedHandle =
     typeof handle === 'string' ? handle.trim().toLowerCase() : undefined;
+  const isRootProfile = asPath === '/' || asPath.startsWith('/?');
   const [previewUserOverride, setPreviewUserOverride] = useState(null);
   const [isBioDrawerOpen, setIsBioDrawerOpen] = useState(false);
   const [isBioTruncated, setIsBioTruncated] = useState(false);
@@ -222,7 +223,9 @@ const ProfilePage = () => {
   const pageDescription =
     displayUser?.bio ||
     `${displayUser?.name || `@${displayUser?.handle || normalizedHandle}`}'s Librelinks page.`;
-  const canonicalUrl = `${siteConfig.url}/${displayUser?.handle || normalizedHandle}`;
+  const canonicalUrl = isRootProfile
+    ? siteConfig.url
+    : `${siteConfig.url}/${displayUser?.handle || normalizedHandle}`;
   const theme = {
     primary: displayUser?.themePalette.palette[0],
     secondary: displayUser?.themePalette.palette[1],
@@ -264,6 +267,16 @@ const ProfilePage = () => {
         style={{ background: theme.primary }}
         className="h-[100vh] w-[100vw] no-scrollbar overflow-auto"
       >
+        {displayUser?.image && (
+          <div className="w-full overflow-hidden border-b-2 border-blue-300 aspect-[637/432]">
+            <img
+              src={displayUser?.image}
+              referrerPolicy="no-referrer"
+              alt="header"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        )}
         <div className="flex items-center w-full mt-4 flex-col mx-auto max-w-3xl justify-center px-8 lg:mt-16">
           {(isLinksFetching || isUserFetching) && (
             <div className="absolute -top-5 left-2">
@@ -272,16 +285,6 @@ const ProfilePage = () => {
                 width={15}
                 height={15}
                 bgColor={theme.accent}
-              />
-            </div>
-          )}
-          {displayUser?.image && (
-            <div className="w-full overflow-hidden rounded-2xl border-2 border-blue-300 aspect-[637/432]">
-              <img
-                src={displayUser?.image}
-                referrerPolicy="no-referrer"
-                alt="header"
-                className="h-full w-full object-cover"
               />
             </div>
           )}
@@ -437,7 +440,7 @@ function getBrowserTrackingPayload() {
 export default ProfilePage;
 
 export async function getServerSideProps(context) {
-  const incomingHandle = context?.params?.handle;
+  const incomingHandle = context?.params?.handle ?? context?.query?.handle;
 
   if (typeof incomingHandle !== 'string') {
     return { notFound: true };
