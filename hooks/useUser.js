@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 
-const useUser = (handle) => {
+const useUser = (handle, { initialData, initialDataUpdatedAt } = {}) => {
   const normalizedHandle =
     typeof handle === 'string' ? handle.trim().toLowerCase() : handle;
 
@@ -18,6 +18,9 @@ const useUser = (handle) => {
     },
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
+    refetchOnMount: initialData ? false : true,
+    initialData,
+    initialDataUpdatedAt,
   });
 };
 

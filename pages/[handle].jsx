@@ -26,12 +26,32 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const PROFILE_META_SELECT = {
+const PUBLIC_PROFILE_SELECT = {
   id: true,
   name: true,
   handle: true,
+  bio: true,
+  image: true,
+  buttonStyle: true,
   themePalette: true,
+  links: {
+    orderBy: {
+      order: 'asc',
+    },
+    select: {
+      id: true,
+      title: true,
+      url: true,
+      archived: true,
+      order: true,
+      isSocial: true,
+    },
+  },
 };
+
+function toPlain(value) {
+  return JSON.parse(JSON.stringify(value));
+}
 
 function isHexColor(value) {
   return typeof value === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value.trim());
@@ -63,12 +83,12 @@ function getThemePrimary(themePalette) {
   return isHexColor(primary) ? primary.trim() : '';
 }
 
-async function getProfilePageMeta(handle) {
+async function getPublicProfile(handle) {
   const existingUser = await db.user.findUnique({
     where: {
       handle,
     },
-    select: PROFILE_META_SELECT,
+    select: PUBLIC_PROFILE_SELECT,
   });
 
   if (existingUser?.id) {
@@ -109,14 +129,15 @@ async function getProfilePageMeta(handle) {
     where: {
       id: matchedUserId,
     },
-    select: PROFILE_META_SELECT,
+    select: PUBLIC_PROFILE_SELECT,
   });
 }
 
 const ProfilePage = ({
   initialHandle,
-  initialName = '',
-  initialThemePrimary = '',
+  initialUser = null,
+  initialLinks = null,
+  initialFetchedAt = 0,
 } = {}) => {
   const { asPath, query } = useRouter();
   const handle = initialHandle ?? query.handle;
@@ -134,10 +155,17 @@ const ProfilePage = ({
     data: fetchedUser,
     isLoading: isUserLoading,
     isFetching: isUserFetching,
-  } = useUser(normalizedHandle);
+  } = useUser(normalizedHandle, {
+    initialData: initialUser ?? undefined,
+    initialDataUpdatedAt: initialUser ? initialFetchedAt : undefined,
+  });
 
   const { data: userLinks, isFetching: isLinksFetching } = useLinks(
-    fetchedUser?.id
+    fetchedUser?.id,
+    {
+      initialData: initialLinks ?? undefined,
+      initialDataUpdatedAt: initialLinks ? initialFetchedAt : undefined,
+    }
   );
 
   const queryClient = useQueryClient();
@@ -249,10 +277,9 @@ const ProfilePage = ({
     };
   }, [sourceBio]);
 
-  const pageBackground =
-    getThemePrimary(fetchedUser?.themePalette) || initialThemePrimary;
+  const pageBackground = getThemePrimary(fetchedUser?.themePalette);
   const pageTitle =
-    (previewUserOverride?.name ?? fetchedUser?.name ?? initialName)?.trim() ||
+    (previewUserOverride?.name ?? fetchedUser?.name)?.trim() ||
     fetchedUser?.handle ||
     normalizedHandle ||
     '';
@@ -279,7 +306,7 @@ const ProfilePage = ({
     };
   }, [pageBackground]);
 
-  if (isUserLoading) {
+  if (isUserLoading && !initialUser) {
     return (
       <>
         <ProfileDocumentHead
@@ -581,16 +608,19 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const profileMeta = await getProfilePageMeta(canonicalHandle);
+  const profile = await getPublicProfile(canonicalHandle);
 
-  if (!profileMeta?.id) {
+  if (!profile?.id) {
     return { notFound: true };
   }
 
+  const { links = [], ...user } = toPlain(profile);
+
   return {
     props: {
-      initialName: profileMeta.name || '',
-      initialThemePrimary: getThemePrimary(profileMeta.themePalette),
+      initialUser: user,
+      initialLinks: links,
+      initialFetchedAt: Date.now(),
     },
   };
 }

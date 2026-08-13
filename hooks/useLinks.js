@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 
-const useLinks = (userId) => {
+const useLinks = (userId, { initialData, initialDataUpdatedAt } = {}) => {
   const fetchLinks = async () => {
     const response = await axios.get(`/api/links?userId=${userId}`);
     return response.data;
@@ -14,6 +14,9 @@ const useLinks = (userId) => {
     enabled: !!userId,
     staleTime: 30 * 1000,
     refetchOnWindowFocus: false,
+    refetchOnMount: initialData ? false : true,
+    initialData,
+    initialDataUpdatedAt,
     onError: () => {
       toast.error('An error occurred');
     },
