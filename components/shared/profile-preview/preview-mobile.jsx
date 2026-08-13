@@ -17,12 +17,12 @@ const PreviewMobile = ({ close }) => {
 
   const theme = useMemo(
     () => ({
-      primary: currentUser?.themePalette.palette[0],
-      secondary: currentUser?.themePalette.palette[1],
-      accent: currentUser?.themePalette.palette[2],
-      neutral: currentUser?.themePalette.palette[3],
+      primary: currentUser?.themePalette?.palette?.[0],
+      secondary: currentUser?.themePalette?.palette?.[1],
+      accent: currentUser?.themePalette?.palette?.[2],
+      neutral: currentUser?.themePalette?.palette?.[3],
     }),
-    [currentUser?.themePalette.palette]
+    [currentUser?.themePalette?.palette]
   );
 
   const socialLinks = useMemo(
@@ -78,7 +78,7 @@ const PreviewMobile = ({ close }) => {
         <div className="flex items-center w-full mt-10 flex-col mx-auto max-w-3xl justify-center px-14 sm:px-16 lg:px-8 lg:mt-16">
           <p
             style={{ color: theme.accent }}
-            className="font-coert text-white text-center text-2xl mt-4 mb-2 lg:mt-4"
+            className="font-coert text-white text-center text-xl mt-4 mb-2 lg:mt-4"
           >
             {currentUser?.name}
           </p>

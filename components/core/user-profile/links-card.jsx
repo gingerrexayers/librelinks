@@ -19,7 +19,7 @@ const AngelWing = ({ mirrored }) => (
 );
 
 const LinkCard = (props) => {
-  const isTransparent = props.buttonStyle.includes('bg-transparent');
+  const isTransparent = props.buttonStyle?.includes('bg-transparent');
 
   const style = {
     background: isTransparent ? 'transparent' : props.theme.secondary,

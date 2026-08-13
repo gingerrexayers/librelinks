@@ -15,7 +15,7 @@ const UserNavButtonMobile = ({ data, logout }) => {
             className="group flex w-full items-center gap-2 rounded-md p-3 text-sm font-medium text-gray-500 transition-all duration-75 hover:bg-gray-100"
           >
             <User size={17} color="gray" />
-            <h3 className="w-full truncate text-lg">{data.user.name}</h3>
+            <h3 className="w-full truncate text-lg">{data?.user?.name}</h3>
           </Link>
           <Link
             target="_blank"

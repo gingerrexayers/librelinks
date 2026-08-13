@@ -227,10 +227,10 @@ const ProfilePage = ({ initialHandle } = {}) => {
     ? siteConfig.url
     : `${siteConfig.url}/${displayUser?.handle || normalizedHandle}`;
   const theme = {
-    primary: displayUser?.themePalette.palette[0],
-    secondary: displayUser?.themePalette.palette[1],
-    accent: displayUser?.themePalette.palette[2],
-    neutral: displayUser?.themePalette.palette[3],
+    primary: displayUser?.themePalette?.palette?.[0],
+    secondary: displayUser?.themePalette?.palette?.[1],
+    accent: displayUser?.themePalette?.palette?.[2],
+    neutral: displayUser?.themePalette?.palette?.[3],
   };
 
   return (
@@ -293,7 +293,7 @@ const ProfilePage = ({ initialHandle } = {}) => {
           )}
           <p
             style={{ color: theme.accent }}
-            className="font-coert text-white text-center text-2xl mt-4 mb-2 lg:mt-4"
+            className="font-coert text-white text-center text-xl mt-4 mb-2 lg:mt-4"
           >
             {displayUser?.name}
           </p>

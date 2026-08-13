@@ -12,9 +12,15 @@ const Layout = ({ children }) => {
   const router = useRouter();
   const { data: currentUser, isLoading } = useCurrentUser();
 
+  const isUnauthenticated = !isLoading && !currentUser;
   const requiresOnboarding = !isLoading && currentUser && !currentUser.handle;
 
   useEffect(() => {
+    if (isUnauthenticated) {
+      router.replace('/login');
+      return;
+    }
+
     if (!requiresOnboarding) {
       return;
     }
@@ -22,9 +28,9 @@ const Layout = ({ children }) => {
     if (ADMIN_PATHS.includes(router.pathname)) {
       router.replace('/onboarding');
     }
-  }, [requiresOnboarding, router]);
+  }, [isUnauthenticated, requiresOnboarding, router]);
 
-  if (isLoading || requiresOnboarding) {
+  if (isLoading || isUnauthenticated || requiresOnboarding) {
     return (
       <Loader
         message={'Loading...'}

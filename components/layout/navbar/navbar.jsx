@@ -96,7 +96,7 @@ const Navbar = ({ showName = false, isHomePage = true }) => {
                 <h3 className="text-sm lg:flex md:hidden hidden">Star on Github</h3>
               </Link>
                
-              <UserAccountNavDesktop />
+              {isAuthenticated && <UserAccountNavDesktop />}
             </div>
           </div>
         </div>
