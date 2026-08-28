@@ -85,7 +85,7 @@ const PreviewMobile = ({ close }) => {
           {currentUser?.bio && (
             <p
               style={{ color: theme.accent }}
-              className="w-[150px] truncate text-center text-sm mt-1 mb-4 lg:text-xl lg:mb-4 lg:w-[500px]"
+              className="font-coert w-[150px] truncate text-center text-sm mt-1 mb-4 lg:text-xl lg:mb-4 lg:w-[500px]"
             >
               {currentUser?.bio}
             </p>

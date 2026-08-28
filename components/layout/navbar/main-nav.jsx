@@ -6,9 +6,11 @@ const SiteHeader = () => {
     <>
       <div className="flex mx-4 gap-2">
         <Link href="/" className="items-center space-x-2 md:flex">
-          <span className="font-bold text-lg sm:inline-block">
-            {siteConfig.name}
-          </span>
+          <img
+            src="/logotype.svg"
+            alt={siteConfig.name}
+            className="h-8 sm:h-9 w-auto"
+          />
         </Link>
       </div>
     </>
