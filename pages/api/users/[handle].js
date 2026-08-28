@@ -11,6 +11,29 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+const PUBLIC_PROFILE_SELECT = {
+  id: true,
+  name: true,
+  handle: true,
+  bio: true,
+  image: true,
+  buttonStyle: true,
+  themePalette: true,
+  links: {
+    orderBy: {
+      order: 'asc',
+    },
+    select: {
+      id: true,
+      title: true,
+      url: true,
+      archived: true,
+      order: true,
+      isSocial: true,
+    },
+  },
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).end();
@@ -29,9 +52,7 @@ export default async function handler(req, res) {
       where: {
         handle: normalizedHandle,
       },
-      include: {
-        links: req.method === 'GET',
-      },
+      select: PUBLIC_PROFILE_SELECT,
     });
 
     if (!existingUser) {
@@ -67,9 +88,7 @@ export default async function handler(req, res) {
           where: {
             id: matchedUserId,
           },
-          include: {
-            links: req.method === 'GET',
-          },
+          select: PUBLIC_PROFILE_SELECT,
         });
       }
     }

@@ -19,11 +19,6 @@ export default async function middleware(req) {
     '/onboarding',
   ];
 
-  // If it's the root path, just render it
-  if (path === '/') {
-    return NextResponse.next();
-  }
-
   const session = SESSION_COOKIE_NAMES.find(
     (cookieName) => req.cookies.get(cookieName)?.value
   );
@@ -35,3 +30,7 @@ export default async function middleware(req) {
   }
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: ['/admin/:path*', '/onboarding/:path*', '/login', '/register'],
+};

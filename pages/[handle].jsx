@@ -607,6 +607,16 @@ export async function getServerSideProps(context) {
     };
   }
 
+  const isIframe = Boolean(context.query.isIframe);
+  if (context.res) {
+    context.res.setHeader(
+      'Cache-Control',
+      isIframe
+        ? 'private, no-store'
+        : 'public, s-maxage=60, stale-while-revalidate=300'
+    );
+  }
+
   const profile = await getPublicProfile(canonicalHandle);
 
   if (!profile?.id) {
