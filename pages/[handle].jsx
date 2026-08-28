@@ -405,7 +405,7 @@ const ProfilePage = ({
               <p
                 ref={bioRef}
                 style={{ color: theme.accent }}
-                className="font-coert w-[270px] truncate text-center text-sm mt-1 lg:text-xl lg:w-[600px]"
+                className="w-[270px] truncate text-center text-sm mt-1 lg:text-xl lg:w-[600px]"
               >
                 {displayUser?.bio}
               </p>
