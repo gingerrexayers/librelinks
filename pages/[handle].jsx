@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import useUser from '@/hooks/useUser';
 import Loader from '@/components/utils/loading-spinner';
 import NotFound from '@/components/utils/not-found';
+import Logotype from '@/components/utils/logotype';
 import useLinks from '@/hooks/useLinks';
 import { SocialCards } from '@/components/core/user-profile/social-cards';
 import Head from 'next/head';
@@ -395,12 +396,10 @@ const ProfilePage = ({
               />
             </div>
           )}
-          <p
+          <Logotype
             style={{ color: theme.accent }}
-            className="font-coert text-white text-center text-xl mt-4 mb-2 lg:mt-4"
-          >
-            {displayUser?.name}
-          </p>
+            className="h-16 lg:h-20 w-auto mt-4 mb-2"
+          />
           {displayUser?.bio && (
             <>
               <p

@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 import LinkCard from '@/components/core/user-profile/links-card';
 import Loader from '@/components/utils/loading-spinner';
 import NotFound from '@/components/utils/not-found';
+import Logotype from '@/components/utils/logotype';
 import useLinks from '@/hooks/useLinks';
 import { SocialCards } from '@/components/core/user-profile/social-cards';
 import useCurrentUser from '@/hooks/useCurrentUser';
@@ -76,12 +77,10 @@ const PreviewMobile = ({ close }) => {
           </div>
         )}
         <div className="flex items-center w-full mt-10 flex-col mx-auto max-w-3xl justify-center px-14 sm:px-16 lg:px-8 lg:mt-16">
-          <p
+          <Logotype
             style={{ color: theme.accent }}
-            className="font-coert text-white text-center text-xl mt-4 mb-2 lg:mt-4"
-          >
-            {currentUser?.name}
-          </p>
+            className="h-12 w-auto mt-4 mb-2"
+          />
           {currentUser?.bio && (
             <p
               style={{ color: theme.accent }}
