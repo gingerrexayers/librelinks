@@ -98,7 +98,9 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const rateLimitKey = `profile-view:${normalizedHandle}:${getRequestIp(req)}`;
+      const rateLimitKey = `profile-view:${normalizedHandle}:${getRequestIp(
+        req
+      )}`;
 
       if (
         !enforceRateLimit({ key: rateLimitKey, limit: 30, windowMs: 60 * 1000 })
@@ -112,7 +114,8 @@ export default async function handler(req, res) {
       const referrer = getTrackedReferrer(
         req,
         req.body?.browserReferrer,
-        normalizedHandle
+        normalizedHandle,
+        req.body?.campaignSource
       );
 
       await createPageVisit(db, {

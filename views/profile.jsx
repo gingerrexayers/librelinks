@@ -1,7 +1,8 @@
+'use client';
+
 /* eslint-disable @next/next/no-img-element */
 import LinkCard from '@/components/core/user-profile/links-card';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -12,50 +13,19 @@ import NotFound from '@/components/utils/not-found';
 import Logotype from '@/components/utils/logotype';
 import useLinks from '@/hooks/useLinks';
 import { SocialCards } from '@/components/core/user-profile/social-cards';
-import Head from 'next/head';
 import { Drawer } from 'vaul';
 import useMediaQuery from '@/hooks/use-media-query';
-import { siteConfig } from '@/config/site';
-import { db } from '@/lib/db';
 
 const LOCAL_LOCATION_FALLBACK = {
   countryCode: 'GH',
   city: 'Accra',
 };
 
-function escapeRegex(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-const PUBLIC_PROFILE_SELECT = {
-  id: true,
-  name: true,
-  handle: true,
-  bio: true,
-  image: true,
-  buttonStyle: true,
-  themePalette: true,
-  links: {
-    orderBy: {
-      order: 'asc',
-    },
-    select: {
-      id: true,
-      title: true,
-      url: true,
-      archived: true,
-      order: true,
-      isSocial: true,
-    },
-  },
-};
-
-function toPlain(value) {
-  return JSON.parse(JSON.stringify(value));
-}
-
 function isHexColor(value) {
-  return typeof value === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value.trim());
+  return (
+    typeof value === 'string' &&
+    /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value.trim())
+  );
 }
 
 function getColorScheme(hex) {
@@ -84,71 +54,20 @@ function getThemePrimary(themePalette) {
   return isHexColor(primary) ? primary.trim() : '';
 }
 
-async function getPublicProfile(handle) {
-  const existingUser = await db.user.findUnique({
-    where: {
-      handle,
-    },
-    select: PUBLIC_PROFILE_SELECT,
-  });
-
-  if (existingUser?.id) {
-    return existingUser;
-  }
-
-  const matchingUsers = await db.user.aggregateRaw({
-    pipeline: [
-      {
-        $match: {
-          handle: {
-            $regex: `^\\s*${escapeRegex(handle)}\\s*$`,
-            $options: 'i',
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-        },
-      },
-      {
-        $limit: 1,
-      },
-    ],
-  });
-
-  const matchedUserId =
-    typeof matchingUsers[0]?._id === 'string'
-      ? matchingUsers[0]._id
-      : matchingUsers[0]?._id?.$oid;
-
-  if (typeof matchedUserId !== 'string') {
-    return null;
-  }
-
-  return db.user.findUnique({
-    where: {
-      id: matchedUserId,
-    },
-    select: PUBLIC_PROFILE_SELECT,
-  });
-}
-
 const ProfilePage = ({
-  initialHandle,
+  handle,
+  isIframe = false,
   initialUser = null,
   initialLinks = null,
   initialFetchedAt = 0,
 } = {}) => {
-  const { asPath, query } = useRouter();
-  const handle = initialHandle ?? query.handle;
   const normalizedHandle =
     typeof handle === 'string' ? handle.trim().toLowerCase() : undefined;
-  const isRootProfile = asPath === '/' || asPath.startsWith('/?');
   const [previewUserOverride, setPreviewUserOverride] = useState(null);
   const [isBioDrawerOpen, setIsBioDrawerOpen] = useState(false);
   const [isBioTruncated, setIsBioTruncated] = useState(false);
   const bioRef = useRef(null);
+  const pendingViews = useRef(new Set());
 
   const { isMobile } = useMediaQuery();
 
@@ -228,36 +147,38 @@ const ProfilePage = ({
   }, [fetchedUser]);
 
   useEffect(() => {
-    if (!normalizedHandle || query.isIframe) {
+    if (
+      !normalizedHandle ||
+      isIframe ||
+      new URLSearchParams(window.location.search).has('isIframe')
+    ) {
       return;
     }
 
-    const trackingKey = `profile-view:${normalizedHandle}`;
-    if (window.sessionStorage.getItem(trackingKey)) {
+    const trackingPayload = getBrowserTrackingPayload();
+    const trackingKey = `profile-view:${normalizedHandle}:${
+      trackingPayload.campaignSource || 'unattributed'
+    }`;
+    if (
+      window.sessionStorage.getItem(trackingKey) ||
+      pendingViews.current.has(trackingKey)
+    ) {
       return;
     }
 
-    let isCancelled = false;
+    pendingViews.current.add(trackingKey);
 
     const trackView = async () => {
       try {
-        await axios.post(
-          `/api/users/${normalizedHandle}`,
-          getBrowserTrackingPayload()
-        );
-        if (!isCancelled) {
-          window.sessionStorage.setItem(trackingKey, 'tracked');
-        }
+        await axios.post(`/api/users/${normalizedHandle}`, trackingPayload);
+        window.sessionStorage.setItem(trackingKey, 'tracked');
       } catch {
+        pendingViews.current.delete(trackingKey);
       }
     };
 
     trackView();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [normalizedHandle, query.isIframe]);
+  }, [isIframe, normalizedHandle]);
 
   useEffect(() => {
     const checkBioTruncation = () => {
@@ -279,11 +200,6 @@ const ProfilePage = ({
   }, [sourceBio]);
 
   const pageBackground = getThemePrimary(fetchedUser?.themePalette);
-  const pageTitle =
-    (previewUserOverride?.name ?? fetchedUser?.name)?.trim() ||
-    fetchedUser?.handle ||
-    normalizedHandle ||
-    '';
 
   useEffect(() => {
     if (!pageBackground) {
@@ -310,15 +226,7 @@ const ProfilePage = ({
   if (isUserLoading && !initialUser) {
     return (
       <>
-        <ProfileDocumentHead
-          pageTitle={pageTitle}
-          pageDescription={sourceBio}
-          canonicalUrl={
-            isRootProfile ? siteConfig.url : `${siteConfig.url}/${normalizedHandle}`
-          }
-          image={siteConfig.ogImage}
-          themePrimary={pageBackground}
-        />
+        <ProfileDocumentHead themePrimary={pageBackground} />
         <div
           className="min-h-screen min-h-[100dvh] w-full"
           style={pageBackground ? { background: pageBackground } : undefined}
@@ -346,12 +254,6 @@ const ProfilePage = ({
     : fetchedUser;
 
   const buttonStyle = displayUser?.buttonStyle;
-  const pageDescription =
-    displayUser?.bio ||
-    `${displayUser?.name || displayUser?.handle || normalizedHandle}'s page.`;
-  const canonicalUrl = isRootProfile
-    ? siteConfig.url
-    : `${siteConfig.url}/${displayUser?.handle || normalizedHandle}`;
   const theme = {
     primary: pageBackground || displayUser?.themePalette?.palette?.[0],
     secondary: displayUser?.themePalette?.palette?.[1],
@@ -361,13 +263,7 @@ const ProfilePage = ({
 
   return (
     <>
-      <ProfileDocumentHead
-        pageTitle={pageTitle}
-        pageDescription={pageDescription}
-        canonicalUrl={canonicalUrl}
-        image={displayUser?.image || siteConfig.ogImage}
-        themePrimary={theme.primary}
-      />
+      <ProfileDocumentHead themePrimary={theme.primary} />
       <section
         style={{ background: theme.primary }}
         className="min-h-screen min-h-[100dvh] w-full max-w-full"
@@ -540,96 +436,22 @@ function getBrowserTrackingPayload() {
     browserDevice,
     browserLocation,
     browserReferrer: document.referrer,
+    campaignSource: new URLSearchParams(window.location.search).get(
+      'utm_source'
+    ),
   };
 }
 
-function ProfileDocumentHead({
-  pageTitle,
-  pageDescription,
-  canonicalUrl,
-  image,
-  themePrimary,
-}) {
-  const colorScheme = getColorScheme(themePrimary);
-
-  return (
-    <Head>
-      <title>{pageTitle}</title>
-      <meta name="description" content={pageDescription} />
-      {themePrimary ? <meta name="theme-color" content={themePrimary} /> : null}
-      <meta name="color-scheme" content={colorScheme} />
-      <link rel="canonical" href={canonicalUrl} />
-      <meta property="og:type" content="profile" />
-      <meta property="og:title" content={pageTitle} />
-      <meta property="og:description" content={pageDescription} />
-      <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:image" content={image} />
-      <meta property="og:image:secure_url" content={image} />
-      <meta property="og:image:alt" content={pageTitle} />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:site" content={siteConfig.twitterHandle} />
-      <meta name="twitter:creator" content={siteConfig.twitterHandle} />
-      <meta name="twitter:title" content={pageTitle} />
-      <meta name="twitter:description" content={pageDescription} />
-      <meta name="twitter:image" content={image} />
-      {themePrimary ? (
-        <style>{`html,body,#__next{background:${themePrimary};min-height:100%;color-scheme:${colorScheme}}`}</style>
-      ) : null}
-    </Head>
-  );
+function ProfileDocumentHead({ themePrimary }) {
+  return themePrimary ? (
+    <>
+      <meta name="theme-color" content={themePrimary} />
+      <meta name="color-scheme" content={getColorScheme(themePrimary)} />
+      <style>{`html,body{background:${themePrimary};min-height:100%;color-scheme:${getColorScheme(
+        themePrimary
+      )}}`}</style>
+    </>
+  ) : null;
 }
 
 export default ProfilePage;
-
-export async function getServerSideProps(context) {
-  const incomingHandle = context?.params?.handle ?? context?.query?.handle;
-
-  if (typeof incomingHandle !== 'string') {
-    return { notFound: true };
-  }
-
-  const canonicalHandle = incomingHandle.trim().toLowerCase();
-
-  if (!canonicalHandle) {
-    return { notFound: true };
-  }
-
-  if (incomingHandle !== canonicalHandle) {
-    const query = { ...context.query };
-    delete query.handle;
-    const searchParams = new URLSearchParams(query).toString();
-
-    return {
-      redirect: {
-        destination: `/${canonicalHandle}${searchParams ? `?${searchParams}` : ''}`,
-        permanent: true,
-      },
-    };
-  }
-
-  const isIframe = Boolean(context.query.isIframe);
-  if (context.res) {
-    context.res.setHeader(
-      'Cache-Control',
-      isIframe
-        ? 'private, no-store'
-        : 'public, s-maxage=60, stale-while-revalidate=300'
-    );
-  }
-
-  const profile = await getPublicProfile(canonicalHandle);
-
-  if (!profile?.id) {
-    return { notFound: true };
-  }
-
-  const { links = [], ...user } = toPlain(profile);
-
-  return {
-    props: {
-      initialUser: user,
-      initialLinks: links,
-      initialFetchedAt: Date.now(),
-    },
-  };
-}

@@ -1,15 +1,23 @@
+'use client';
+
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 import Loader from '@/components/utils/loading-spinner';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import Preview from '../shared/profile-preview/preview';
 import PreviewBtn from '../shared/profile-preview/preview-btn';
 import Navbar from './navbar/navbar';
 
-const ADMIN_PATHS = ['/admin', '/admin/customize', '/admin/analytics', '/admin/settings'];
+const ADMIN_PATHS = [
+  '/admin',
+  '/admin/customize',
+  '/admin/analytics',
+  '/admin/settings',
+];
 
 const Layout = ({ children }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: currentUser, isLoading } = useCurrentUser();
 
   const isUnauthenticated = !isLoading && !currentUser;
@@ -25,10 +33,10 @@ const Layout = ({ children }) => {
       return;
     }
 
-    if (ADMIN_PATHS.includes(router.pathname)) {
+    if (ADMIN_PATHS.includes(pathname)) {
       router.replace('/onboarding');
     }
-  }, [isUnauthenticated, requiresOnboarding, router]);
+  }, [pathname, isUnauthenticated, requiresOnboarding, router]);
 
   if (isLoading || isUnauthenticated || requiresOnboarding) {
     return (
@@ -47,7 +55,7 @@ const Layout = ({ children }) => {
         <Navbar showName={false} isHomePage={false} />
         <main className="bg-[#F9FAFB] flex flex-row h-screen z-0 ">
           {children}
-          {router.pathname !== '/admin/analytics' && (
+          {pathname !== '/admin/analytics' && (
             <div className="hidden lg:my-auto lg:block lg:basis-2/5 pl-4">
               <Preview />
             </div>

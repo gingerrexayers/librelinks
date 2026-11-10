@@ -61,7 +61,7 @@ const PreviewMobile = ({ close }) => {
     <>
       <section
         style={{ background: theme.primary }}
-        className="h-[100vh] w-full max-w-full no-scrollbar overflow-x-hidden overflow-y-auto"
+        className="min-h-[100dvh] w-full max-w-full no-scrollbar overflow-x-hidden overflow-y-auto"
       >
         {currentUser?.image && (
           <div
