@@ -33,7 +33,7 @@ const LinkCard = (props) => {
       onClick={props.registerClicks}
       target="_blank"
       rel="noopener noreferrer"
-      className="angel-link-card relative block mb-3 w-full sm:w-64 md:w-72 lg:w-96 xl:w-3/4 2xl:w-3/5 max-w-3xl lg:mb-6 hover:scale-105 transition-all hover:z-10 focus-visible:z-10"
+      className="angel-link-card relative block mb-10 w-full sm:w-64 md:w-72 lg:w-96 xl:w-3/4 2xl:w-3/5 max-w-3xl lg:mb-12 hover:scale-105 transition-all hover:z-10 focus-visible:z-10"
       style={{ display: props.archived ? 'none' : 'block' }}
     >
       <span className="angel-halo" aria-hidden="true" />
